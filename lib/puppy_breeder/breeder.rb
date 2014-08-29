@@ -35,5 +35,11 @@ module PuppyBreeder
 				purchase.order_status == "completed"
 			end
 		end
+
+		def view_pending_orders(pr_list)
+			pr_list.purchase_requests.select do |purchase_id, purchase|
+				purchase.order_status == "pending"
+			end
+		end
 	end
 end

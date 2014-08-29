@@ -83,4 +83,14 @@ describe PuppyBreeder::Breeder do
 			expect(jon.view_completed_orders(purchase_request_list)[purchase_request.id].puppy.name).to eq("Spot")
 		end
 	end
+
+	describe "#view_pending_orders" do
+		it "should list out all completed orders only" do
+			purchase_request_list.add(purchase_request)
+			purchase_request_list.add(purchase_request2)
+
+			jon.update_purchase_request(purchase_request_list, purchase_request2.id, "approved")
+			expect(jon.view_pending_orders(purchase_request_list)[purchase_request.id].puppy.name).to eq("Spot")
+		end
+	end
 end
