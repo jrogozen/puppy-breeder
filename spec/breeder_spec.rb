@@ -3,7 +3,7 @@ require_relative 'spec_helper.rb'
 describe PuppyBreeder::Breeder do
 	let(:jon) {PuppyBreeder::Breeder.new("Jon")}
 	let(:spot) {PuppyBreeder::Puppy.new("Spot", "Pitbull", "Brown")}
-	let(:puppies) {PuppyBreeder::PuppyList.new}
+	let(:puppylist) {PuppyBreeder::PuppyList.new}
 
 
 	describe '#initialize' do 
@@ -14,9 +14,8 @@ describe PuppyBreeder::Breeder do
 
 	describe '#add_puppy' do
 		it "should add puppy to PuppyList" do
-			# true sets puppy as available
-			jon.add_puppy(puppies, spot, "available")
-			expect(puppies.all_puppies.first.name).to eq("Spot")
+			jon.add_puppy(puppylist, spot, "available")
+			expect(puppylist.puppies[:Spot].name).to eq("Spot")
 		end
 	end
 end
