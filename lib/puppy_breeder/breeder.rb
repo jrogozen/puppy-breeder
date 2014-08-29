@@ -50,5 +50,9 @@ module PuppyBreeder
 				purchase.order_status == "pending"
 			end
 		end
+
+		def set_breed_price(breed, price)
+			breed.price = price
+		end
 	end
 end

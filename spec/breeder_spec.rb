@@ -112,5 +112,9 @@ describe PuppyBreeder::Breeder do
 	end
 
 	describe '#set_breed_price' do
+		it "should update a breed's price" do
+			jon.set_breed_price(pitbull, 10)
+			expect(pitbull.price).to eq(10)
+		end
 	end
 end
