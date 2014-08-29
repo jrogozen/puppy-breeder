@@ -1,8 +1,9 @@
 require_relative 'spec_helper.rb'
 
 describe PuppyBreeder::PurchaseRequestList do
+	let(:pitbull) {PuppyBreeder::Breed.new("Pitbull", 500)}
 	let(:jon) {PuppyBreeder::Breeder.new("Jon")}
-	let(:spot) {PuppyBreeder::Puppy.new("Spot", "Pitbull", "Brown")}
+	let(:spot) {PuppyBreeder::Puppy.new("Spot", pitbull, "Brown", 100)}
 	let(:puppylist) {PuppyBreeder::PuppyList.new}
 	let(:purchase_request) {PuppyBreeder::PurchaseRequest.new(spot, {:request_type => "verbal"})}
 	let(:purchase_request_list) {PuppyBreeder::PurchaseRequestList.new}

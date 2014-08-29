@@ -1,10 +1,13 @@
 require_relative 'spec_helper.rb'
 
 describe PuppyBreeder::Breeder do
+	let(:pitbull) {PuppyBreeder::Breed.new("Pitbull", 500)}
+	let(:golden_retriever) {PuppyBreeder::Breed.new("Golden Retriever", 100)}
+	let(:poodle) {PuppyBreeder::Breed.new("Poodle", 40)}
 	let(:jon) {PuppyBreeder::Breeder.new("Jon")}
-	let(:spot) {PuppyBreeder::Puppy.new("Spot", "Pitbull", "Brown")}
-	let(:lucky) {PuppyBreeder::Puppy.new("Lucky", "Golden Retriever", "Golden")}
-	let(:sniffles) {PuppyBreeder::Puppy.new("Sniffles", "Poodle", "Black")}
+	let(:spot) {PuppyBreeder::Puppy.new("Spot", pitbull, "Brown", 10)}
+	let(:lucky) {PuppyBreeder::Puppy.new("Lucky", golden_retriever, "Golden", 21)}
+	let(:sniffles) {PuppyBreeder::Puppy.new("Sniffles", poodle, "Black", 30)}
 	let(:puppylist) {PuppyBreeder::PuppyList.new}
 	let(:jackson) {PuppyBreeder::Customer.new("Michael Jackson")}
 	let(:purchase_request) {PuppyBreeder::PurchaseRequest.new(spot, jackson)}
@@ -106,5 +109,8 @@ describe PuppyBreeder::Breeder do
 			jon.update_purchase_request(purchase_request_list, purchase_request2.id, "approved")
 			expect(jon.view_pending_orders(purchase_request_list)[purchase_request.id].puppy.name).to eq("Spot")
 		end
+	end
+
+	describe '#set_breed_price' do
 	end
 end
