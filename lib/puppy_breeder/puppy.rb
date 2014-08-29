@@ -6,6 +6,7 @@ module PuppyBreeder
 
   	def initialize(name, breed, color)
   		@name, @breed, @color = name, breed, color
+  		@status = nil
   	end
   end
 end

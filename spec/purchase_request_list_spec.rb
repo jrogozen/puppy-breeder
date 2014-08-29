@@ -13,4 +13,14 @@ describe PuppyBreeder::PurchaseRequestList do
 			expect(purchase_request_list.purchase_requests[purchase_request.id]).to eq(purchase_request)
 		end
 	end
+
+	describe '#show_completed' do
+		it "shows only completed requests" do
+		end
+	end
+
+	describe '#show_pending' do
+		it "shows pending requests" do
+		end
+	end
 end
