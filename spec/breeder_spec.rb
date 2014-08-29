@@ -52,20 +52,35 @@ describe PuppyBreeder::Breeder do
 
 	describe '#update_purchase_request' do
 		it "change status of purchase request to approved" do
-			
+			purchase_request_list.add(purchase_request)
+
+			# change the status to approved
+			jon.update_purchase_request(purchase_request_list, purchase_request.id, "approved")
+			expect(purchase_request.order_status).to eq("approved")
 		end
 
 		it "change status of purchase request to denied" do
+			purchase_request_list.add(purchase_request)
+			jon.update_purchase_request(purchase_request_list, purchase_request.id, "denied")
+			expect(purchase_request.order_status).to eq("denied")
 		end
 	end
 
-	describe "delete_purchase_request" do
+	describe "#delete_purchase_request" do
 		it "successfully removes a purchase request" do
+			purchase_request_list.add(purchase_request)
+			jon.delete_purchase_request(purchase_request_list, purchase_request.id)
+			expect(purchase_request_list.purchase_requests[purchase_request.id]).to be_nil
 		end
 	end
 
-	describe "complete_purchase_request" do
-		it "should change status of a request to completed" do
+	describe '#view_completed_orders' do
+		it "should list out all completed orders only" do
+			purchase_request_list.add(purchase_request)
+			purchase_request_list.add(purchase_request2)
+
+			jon.update_purchase_request(purchase_request_list, purchase_request.id, "completed")
+			expect(jon.view_completed_orders(purchase_request_list)[purchase_request.id].puppy.name).to eq("Spot")
 		end
 	end
 end

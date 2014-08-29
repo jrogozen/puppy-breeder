@@ -22,5 +22,18 @@ module PuppyBreeder
 			pr_list.purchase_requests
 		end
 
+		def update_purchase_request(pr_list, pr_id, order_status)
+			pr_list.purchase_requests[pr_id].order_status = order_status
+		end
+
+		def delete_purchase_request(pr_list, pr_id)
+			pr_list.purchase_requests.delete(pr_id)
+		end
+
+		def view_completed_orders(pr_list)
+			pr_list.purchase_requests.select do |purchase_id, purchase|
+				purchase.order_status == "completed"
+			end
+		end
 	end
 end
