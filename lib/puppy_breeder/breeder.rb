@@ -23,7 +23,16 @@ module PuppyBreeder
 		end
 
 		def update_purchase_request(pr_list, pr_id, order_status)
-			pr_list.purchase_requests[pr_id].order_status = order_status
+			purchase = pr_list.purchase_requests[pr_id]
+			purchase.order_status = order_status
+
+			if order_status == "completed"
+				if purchase.puppy.can_be_sold?
+					purchase.puppy.status = "sold"
+				else
+					return false
+				end
+			end
 		end
 
 		def delete_purchase_request(pr_list, pr_id)

@@ -4,10 +4,12 @@ describe PuppyBreeder::Breeder do
 	let(:jon) {PuppyBreeder::Breeder.new("Jon")}
 	let(:spot) {PuppyBreeder::Puppy.new("Spot", "Pitbull", "Brown")}
 	let(:lucky) {PuppyBreeder::Puppy.new("Lucky", "Golden Retriever", "Golden")}
+	let(:sniffles) {PuppyBreeder::Puppy.new("Sniffles", "Poodle", "Black")}
 	let(:puppylist) {PuppyBreeder::PuppyList.new}
 	let(:jackson) {PuppyBreeder::Customer.new("Michael Jackson")}
 	let(:purchase_request) {PuppyBreeder::PurchaseRequest.new(spot, jackson)}
 	let(:purchase_request2) {PuppyBreeder::PurchaseRequest.new(lucky, jackson)}
+	let(:purchase_request3) {PuppyBreeder::PurchaseRequest.new(sniffles, jackson)}
 	let(:purchase_request_list) {PuppyBreeder::PurchaseRequestList.new}
 	let(:create_one) {jon.create_purchase_request(purchase_request_list, jackson, spot, {:request_type => "letter"})}
 	
@@ -63,6 +65,18 @@ describe PuppyBreeder::Breeder do
 			purchase_request_list.add(purchase_request)
 			jon.update_purchase_request(purchase_request_list, purchase_request.id, "denied")
 			expect(purchase_request.order_status).to eq("denied")
+		end
+
+		it "when order status is completed, should change puppy status to unavailable" do
+			purchase_request_list.add(purchase_request)
+			jon.update_purchase_request(purchase_request_list, purchase_request.id, "completed")
+			expect(spot.status).to eq("sold")
+		end
+
+		it "can't sell puppy if it isn't available" do
+			sniffles.status = "sold"
+			purchase_request_list.add(purchase_request3)
+			expect(jon.update_purchase_request(purchase_request_list, purchase_request3.id, "completed")).to eq(false)
 		end
 	end
 
