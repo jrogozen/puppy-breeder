@@ -5,17 +5,31 @@ module PuppyBreeder
 		def initialize(name=nil)
 			@name = name
 			@puppies = {}
-
-			# {
-			# 	:puppy_name => {
-			# 		:name => "joe"
-			# 	}
-			# }
 		end
 
-		def add(puppy, status=nil)
+		def add(puppy, status="available")
 			@puppies[puppy.name.to_sym] = puppy
 			@puppies[puppy.name.to_sym].status = status
+		end
+
+		def have_puppy?(breed)
+			@suitable_puppies = @puppies.select do |puppy_name, puppy|
+				puppy.breed == breed
+			end
+
+			if @suitable_puppies.length > 0
+				return true
+			end
+
+			return false
+		end
+
+		def match_puppy(breed)
+			if have_puppy?(breed)
+				return @suitable_puppies.first
+			else
+				return nil
+			end
 		end
 
 	end

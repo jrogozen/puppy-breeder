@@ -5,7 +5,7 @@ describe PuppyBreeder::PurchaseRequestList do
 	let(:jon) {PuppyBreeder::Breeder.new("Jon")}
 	let(:spot) {PuppyBreeder::Puppy.new("Spot", pitbull, "Brown", 100)}
 	let(:puppylist) {PuppyBreeder::PuppyList.new}
-	let(:purchase_request) {PuppyBreeder::PurchaseRequest.new(spot, {:request_type => "verbal"})}
+	let(:purchase_request) {PuppyBreeder::PurchaseRequest.new(pitbull, {:request_type => "verbal"})}
 	let(:purchase_request_list) {PuppyBreeder::PurchaseRequestList.new}
 
 	describe '#add' do

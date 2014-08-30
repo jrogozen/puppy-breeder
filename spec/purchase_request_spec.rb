@@ -6,7 +6,7 @@ describe PuppyBreeder::PurchaseRequest do
 	let(:spot) {PuppyBreeder::Puppy.new("Spot", pitbull, "Brown", 1)}
 	let(:puppylist) {PuppyBreeder::PuppyList.new}
 	let(:jackson) {PuppyBreeder::Customer.new("Michael Jackson")}
-	let(:purchase_request) {PuppyBreeder::PurchaseRequest.new(spot, jackson, {:request_type => "verbal"})}
+	let(:purchase_request) {PuppyBreeder::PurchaseRequest.new(pitbull, jackson, {:request_type => "verbal"})}
 
 	describe '#initialize' do
 		it "instantiates the purchase request class" do

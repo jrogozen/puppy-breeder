@@ -10,8 +10,8 @@ module PuppyBreeder
 			puppy_list.add(puppy, status)
 		end
 
-		def create_purchase_request(pr_list, customer, puppy, opt={})
-			pr_list.add(PurchaseRequest.new(puppy, customer, opt))
+		def create_purchase_request(pr_list, customer, breed, opt={})
+			pr_list.add(PurchaseRequest.new(breed, customer, opt))
 		end
 
 		def review_purchase_request(pr_list, pr_id)
@@ -25,14 +25,24 @@ module PuppyBreeder
 		def update_purchase_request(pr_list, pr_id, order_status)
 			purchase = pr_list.purchase_requests[pr_id]
 			purchase.order_status = order_status
+		end
 
-			if order_status == "completed"
-				if purchase.puppy.can_be_sold?
-					purchase.puppy.status = "sold"
-				else
-					return false
-				end
+		def complete_purchase_request(pp_list, pr_list, pr_id)
+			purchase = pr_list.purchase_requests[pr_id]
+
+
+			# this returns a puppy if we have one available
+			# pup is an array with [0] = name, [1] = puppy object
+			pup = pp_list.match_puppy(purchase.breed)[1]
+			
+			if pup && pup.can_be_sold?
+				purchase.order_status = "completed"
+				pup.status = "sold"
+				return true
 			end
+
+			return nil
+
 		end
 
 		def delete_purchase_request(pr_list, pr_id)

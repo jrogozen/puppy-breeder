@@ -10,9 +10,9 @@ describe PuppyBreeder::Breeder do
 	let(:sniffles) {PuppyBreeder::Puppy.new("Sniffles", poodle, "Black", 30)}
 	let(:puppylist) {PuppyBreeder::PuppyList.new}
 	let(:jackson) {PuppyBreeder::Customer.new("Michael Jackson")}
-	let(:purchase_request) {PuppyBreeder::PurchaseRequest.new(spot, jackson)}
-	let(:purchase_request2) {PuppyBreeder::PurchaseRequest.new(lucky, jackson)}
-	let(:purchase_request3) {PuppyBreeder::PurchaseRequest.new(sniffles, jackson)}
+	let(:purchase_request) {PuppyBreeder::PurchaseRequest.new(pitbull, jackson)}
+	let(:purchase_request2) {PuppyBreeder::PurchaseRequest.new(golden_retriever, jackson)}
+	let(:purchase_request3) {PuppyBreeder::PurchaseRequest.new(poodle, jackson)}
 	let(:purchase_request_list) {PuppyBreeder::PurchaseRequestList.new}
 	let(:create_one) {jon.create_purchase_request(purchase_request_list, jackson, spot, {:request_type => "letter"})}
 	
@@ -41,7 +41,7 @@ describe PuppyBreeder::Breeder do
 		# should be able to look at purchase request by ID
 		it "look at one purchase request" do
 			purchase_request_list.add(purchase_request)
-			expect(jon.review_purchase_request(purchase_request_list, purchase_request.id).puppy.name).to eq("Spot")
+			expect(jon.review_purchase_request(purchase_request_list, purchase_request.id).breed.name).to eq("Pitbull")
 		end
 	end
 
@@ -51,7 +51,7 @@ describe PuppyBreeder::Breeder do
 			purchase_request_list.add(purchase_request2)
 
 			# look at the second request
-			expect(jon.all_purchase_requests(purchase_request_list)[purchase_request2.id].puppy.name).to eq("Lucky")
+			expect(jon.all_purchase_requests(purchase_request_list)[purchase_request2.id].breed.name).to eq("Golden Retriever")
 		end
 	end
 
@@ -69,17 +69,22 @@ describe PuppyBreeder::Breeder do
 			jon.update_purchase_request(purchase_request_list, purchase_request.id, "denied")
 			expect(purchase_request.order_status).to eq("denied")
 		end
+	end
 
+	describe '#complete_purchase_request' do
 		it "when order status is completed, should change puppy status to unavailable" do
+			puppylist.add(spot)
 			purchase_request_list.add(purchase_request)
-			jon.update_purchase_request(purchase_request_list, purchase_request.id, "completed")
+			jon.complete_purchase_request(puppylist, purchase_request_list, purchase_request.id)
 			expect(spot.status).to eq("sold")
+
 		end
 
 		it "can't sell puppy if it isn't available" do
+			puppylist.add(sniffles)
 			sniffles.status = "sold"
 			purchase_request_list.add(purchase_request3)
-			expect(jon.update_purchase_request(purchase_request_list, purchase_request3.id, "completed")).to eq(false)
+			expect(jon.complete_purchase_request(puppylist, purchase_request_list, purchase_request3.id)).to be_nil
 		end
 	end
 
@@ -97,7 +102,7 @@ describe PuppyBreeder::Breeder do
 			purchase_request_list.add(purchase_request2)
 
 			jon.update_purchase_request(purchase_request_list, purchase_request.id, "completed")
-			expect(jon.view_completed_orders(purchase_request_list)[purchase_request.id].puppy.name).to eq("Spot")
+			expect(jon.view_completed_orders(purchase_request_list)[purchase_request.id].breed.name).to eq("Pitbull")
 		end
 	end
 
@@ -107,7 +112,7 @@ describe PuppyBreeder::Breeder do
 			purchase_request_list.add(purchase_request2)
 
 			jon.update_purchase_request(purchase_request_list, purchase_request2.id, "approved")
-			expect(jon.view_pending_orders(purchase_request_list)[purchase_request.id].puppy.name).to eq("Spot")
+			expect(jon.view_pending_orders(purchase_request_list)[purchase_request.id].breed.name).to eq("Pitbull")
 		end
 	end
 
