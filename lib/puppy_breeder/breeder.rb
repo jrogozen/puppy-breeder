@@ -30,11 +30,13 @@ module PuppyBreeder
 
 		def complete_purchase_request(purchase)
 			purchase.order_status = "completed"
+			purchase.breed.remove_from_waitlist(purchase.customer)
 			return purchase
 		end
 
 		def hold_purchase_request(purchase)
 			purchase.order_status = "hold"
+			purchase.breed.add_to_waitlist(purchase.customer)
 			return purchase
 		end
 
@@ -44,9 +46,12 @@ module PuppyBreeder
 			purchase = pr_list.purchase_requests[pr_id]
 
 			if pp_list.match_puppy(purchase.breed)
-				pup = pp_list.match_puppy(purchase.breed)[1]
-				pup.status = "sold"
-				complete_purchase_request(purchase)
+				# gross!!!!
+				if purchase.breed.wait_list.empty? || purchase.breed.wait_list.first == purchase.customer
+					pup = pp_list.match_puppy(purchase.breed)[1]
+					pup.status = "sold"
+					complete_purchase_request(purchase)
+				end
 			else
 				hold_purchase_request(purchase)
 			end

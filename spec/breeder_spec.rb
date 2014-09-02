@@ -10,9 +10,11 @@ describe PuppyBreeder::Breeder do
 	let(:sniffles) {PuppyBreeder::Puppy.new("Sniffles", poodle, "Black", 30)}
 	let(:puppylist) {PuppyBreeder::PuppyList.new}
 	let(:jackson) {PuppyBreeder::Customer.new("Michael Jackson")}
+	let(:usher) {PuppyBreeder::Customer.new("Usher")}
 	let(:purchase_request) {PuppyBreeder::PurchaseRequest.new(pitbull, jackson)}
 	let(:purchase_request2) {PuppyBreeder::PurchaseRequest.new(golden_retriever, jackson)}
 	let(:purchase_request3) {PuppyBreeder::PurchaseRequest.new(poodle, jackson)}
+	let(:purchase_request4) {PuppyBreeder::PurchaseRequest.new(pitbull, usher)}
 	let(:purchase_request_list) {PuppyBreeder::PurchaseRequestList.new}
 	let(:create_one) {jon.create_purchase_request(purchase_request_list, jackson, spot, {:request_type => "letter"})}
 	
@@ -71,22 +73,6 @@ describe PuppyBreeder::Breeder do
 		end
 	end
 
-	# describe '#complete_purchase_request' do
-	# 	it "when order status is completed, should change puppy status to sold" do
-	# 		puppylist.add(spot)
-	# 		purchase_request_list.add(purchase_request)
-
-	# 		expect(spot.status).to eq("sold")
-
-	# 	end
-
-	# 	xit "puts purcase request on hold if no puppy available" do
-	# 		puppylist.add(sniffles)
-	# 		sniffles.status = "sold"
-	# 		purchase_request_list.add(purchase_request3)
-	# 	end
-	# end
-
 	describe '#process_purchase_request' do 
 		it "completes a purchase request" do
 			puppylist.add(spot)
@@ -111,7 +97,7 @@ describe PuppyBreeder::Breeder do
 			expect(purchase_request.order_status).to eq("hold")
 		end
 
-		it "put a request on hold and then accept it next time" do
+		it "put a request on hold and then accepts it next time" do
 			puppylist.add(spot)
 
 			# set no available pup
@@ -122,6 +108,45 @@ describe PuppyBreeder::Breeder do
 
 			# set available pup
 			puppylist.add(PuppyBreeder::Puppy.new("Woof", pitbull, "Black", 1))
+			jon.process_purchase_request(puppylist, purchase_request_list, purchase_request.id)
+			expect(purchase_request.order_status).to eq("completed")
+		end
+
+		it "adds customer to waitlist" do
+			puppylist.add(spot)
+
+			# set no available puppy
+			spot.status = "sold"
+			purchase_request_list.add(purchase_request)
+
+			jon.process_purchase_request(puppylist, purchase_request_list, purchase_request.id)
+			expect(pitbull.wait_list[0]).to eq(jackson)
+		end
+
+		it "doesnt accept someone who isn't first on the waitlist" do
+			puppylist.add(spot)
+
+			# set no available pup
+			spot.status = "sold"
+			purchase_request_list.add(purchase_request)
+			purchase_request_list.add(purchase_request4)
+			jon.process_purchase_request(puppylist, purchase_request_list, purchase_request.id)
+			jon.process_purchase_request(puppylist, purchase_request_list, purchase_request4.id)
+			spot.status = "available"
+			jon.process_purchase_request(puppylist, purchase_request_list, purchase_request4.id)
+			expect(purchase_request4.order_status).to eq("hold")
+		end
+
+		it "accepts someone first on the waitlist" do
+			puppylist.add(spot)
+
+			# set no available pup
+			spot.status = "sold"
+			purchase_request_list.add(purchase_request)
+			purchase_request_list.add(purchase_request4)
+			jon.process_purchase_request(puppylist, purchase_request_list, purchase_request.id)
+			jon.process_purchase_request(puppylist, purchase_request_list, purchase_request4.id)
+			spot.status = "available"
 			jon.process_purchase_request(puppylist, purchase_request_list, purchase_request.id)
 			expect(purchase_request.order_status).to eq("completed")
 		end
