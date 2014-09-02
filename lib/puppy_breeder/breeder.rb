@@ -10,6 +10,7 @@ module PuppyBreeder
 			puppy_list.add(puppy, status)
 		end
 
+		# look into making two methods. one to create purchase request and one to add it to a list
 		def create_purchase_request(pr_list, customer, breed, opt={})
 			pr_list.add(PurchaseRequest.new(breed, customer, opt))
 		end
