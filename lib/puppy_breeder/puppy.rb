@@ -8,10 +8,5 @@ module PuppyBreeder
   		@name, @breed, @color, @age = name, breed, color, age
   		@status = "available"
   	end
-
-  	def can_be_sold?
-  		return false unless @status == "available"
-  		true
-  	end
   end
 end

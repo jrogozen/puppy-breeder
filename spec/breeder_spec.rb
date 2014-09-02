@@ -108,8 +108,22 @@ describe PuppyBreeder::Breeder do
 			purchase_request_list.add(purchase_request)
 
 			jon.process_purchase_request(puppylist, purchase_request_list, purchase_request.id)
-
 			expect(purchase_request.order_status).to eq("hold")
+		end
+
+		it "put a request on hold and then accept it next time" do
+			puppylist.add(spot)
+
+			# set no available pup
+			spot.status = "sold"
+			purchase_request_list.add(purchase_request)
+			jon.process_purchase_request(puppylist, purchase_request_list, purchase_request.id)
+			expect(purchase_request.order_status).to eq("hold")
+
+			# set available pup
+			puppylist.add(PuppyBreeder::Puppy.new("Woof", pitbull, "Black", 1))
+			jon.process_purchase_request(puppylist, purchase_request_list, purchase_request.id)
+			expect(purchase_request.order_status).to eq("completed")
 		end
 
 	end

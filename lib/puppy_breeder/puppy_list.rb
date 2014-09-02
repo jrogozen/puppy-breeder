@@ -14,7 +14,7 @@ module PuppyBreeder
 
 		def have_puppy?(breed)
 			@suitable_puppies = @puppies.select do |puppy_name, puppy|
-				puppy.breed == breed
+				puppy.breed == breed && puppy.status == "available"
 			end
 
 			if @suitable_puppies.length > 0
