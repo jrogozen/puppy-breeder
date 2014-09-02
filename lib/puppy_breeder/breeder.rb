@@ -28,22 +28,30 @@ module PuppyBreeder
 			purchase.order_status = order_status
 		end
 
-		def complete_purchase_request(pp_list, pr_list, pr_id)
+		def complete_purchase_request(pr_list, pr_id)
 			purchase = pr_list.purchase_requests[pr_id]
+			purchase.order_status = "completed"
+			return purchase
+		end
 
+		def hold_purchase_request(pr_list, pr_id)
+			purchase = pr_list.purchase_requests[pr_id]
+			purchase.order_status = "hold"
+			return purchase
+		end
 
+		def process_purchase_request(pp_list, pr_list, pr_id)
 			# this returns a puppy if we have one available
 			# pup is an array with [0] = name, [1] = puppy object
+			purchase = pr_list.purchase_requests[pr_id]
 			pup = pp_list.match_puppy(purchase.breed)[1]
 			
 			if pup && pup.can_be_sold?
-				purchase.order_status = "completed"
 				pup.status = "sold"
-				return true
+				complete_purchase_request(pr_list, pr_id)
+			else
+				hold_purchase_request(pr_list, pr_id)
 			end
-
-			return nil
-
 		end
 
 		def delete_purchase_request(pr_list, pr_id)

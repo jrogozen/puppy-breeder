@@ -71,21 +71,47 @@ describe PuppyBreeder::Breeder do
 		end
 	end
 
-	describe '#complete_purchase_request' do
-		it "when order status is completed, should change puppy status to unavailable" do
+	# describe '#complete_purchase_request' do
+	# 	it "when order status is completed, should change puppy status to sold" do
+	# 		puppylist.add(spot)
+	# 		purchase_request_list.add(purchase_request)
+
+	# 		expect(spot.status).to eq("sold")
+
+	# 	end
+
+	# 	xit "puts purcase request on hold if no puppy available" do
+	# 		puppylist.add(sniffles)
+	# 		sniffles.status = "sold"
+	# 		purchase_request_list.add(purchase_request3)
+	# 	end
+	# end
+
+	describe '#process_purchase_request' do 
+		it "completes a purchase request" do
 			puppylist.add(spot)
 			purchase_request_list.add(purchase_request)
-			jon.complete_purchase_request(puppylist, purchase_request_list, purchase_request.id)
+			jon.process_purchase_request(puppylist, purchase_request_list, purchase_request.id)
+
+			# process works
 			expect(spot.status).to eq("sold")
 
+			# complete works
+			expect(purchase_request.order_status).to eq("completed")
 		end
 
-		it "can't sell puppy if it isn't available" do
-			puppylist.add(sniffles)
-			sniffles.status = "sold"
-			purchase_request_list.add(purchase_request3)
-			expect(jon.complete_purchase_request(puppylist, purchase_request_list, purchase_request3.id)).to be_nil
+		it "puts a request on hold" do
+			puppylist.add(spot)
+
+			# set no available puppy
+			spot.status = "sold"
+			purchase_request_list.add(purchase_request)
+
+			jon.process_purchase_request(puppylist, purchase_request_list, purchase_request.id)
+
+			expect(purchase_request.order_status).to eq("hold")
 		end
+
 	end
 
 	describe "#delete_purchase_request" do
