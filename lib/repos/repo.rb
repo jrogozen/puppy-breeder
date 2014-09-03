@@ -1,3 +1,5 @@
+require 'pg'
+	
 module PuppyBreeder
 	module Repos
 		class Repo

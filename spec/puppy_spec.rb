@@ -8,9 +8,5 @@ describe PuppyBreeder::Puppy do
 		it "initializes instance of Puppy class" do
 			expect(pup).to be_kind_of(PuppyBreeder::Puppy)
 		end
-
-		it "initializes correct color" do
-			expect(pup.color).to eq("Brown")
-		end
 	end
 end

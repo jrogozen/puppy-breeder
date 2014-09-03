@@ -5,7 +5,7 @@ describe PuppyBreeder::Breeder do
 	let(:golden_retriever) {PuppyBreeder::Breed.new("Golden Retriever", 100)}
 	let(:poodle) {PuppyBreeder::Breed.new("Poodle", 40)}
 	let(:jon) {PuppyBreeder::Breeder.new("Jon")}
-	let(:spot) {PuppyBreeder::Puppy.new("Spot", pitbull, "Brown", 10)}
+	let(:spot) {PuppyBreeder::Puppy.new({:name => "Spot", :breed => pitbull, :age => 10})}
 	let(:lucky) {PuppyBreeder::Puppy.new("Lucky", golden_retriever, "Golden", 21)}
 	let(:sniffles) {PuppyBreeder::Puppy.new("Sniffles", poodle, "Black", 30)}
 	let(:puppylist) {PuppyBreeder::PuppyList.new}

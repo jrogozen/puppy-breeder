@@ -2,12 +2,11 @@
 module PuppyBreeder
   class PurchaseRequest
   	attr_accessor :order_status, :id
-  	attr_reader :request_type, :payment_method, :customer, :breed
+  	attr_reader :customer, :breed
 
-  	def initialize(breed, customer, opt={})
-  		@breed, @customer = breed, customer
-  		@request_type = opt[:request_type]
-  		@payment_method = opt[:payment_method]
+  	def initialize(opt = {})
+      @breed = opt[:breed]
+      @customer = opt[:customer]
   		@order_status = "pending"
 
       # id is set by PurchaseRequestList class

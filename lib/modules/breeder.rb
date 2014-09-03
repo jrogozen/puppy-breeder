@@ -6,17 +6,18 @@ module PuppyBreeder
 			@name = name
 		end
 
-		def add_puppy(puppy_list, puppy, status)
-			puppy_list.add(puppy, status)
+		def add_puppy(puppy)
+			PuppyBreeder.puppies_repo.add(puppy)
 		end
 
 		# look into making two methods. one to create purchase request and one to add it to a list
-		def create_purchase_request(pr_list, customer, breed, opt={})
-			pr_list.add(PurchaseRequest.new(breed, customer, opt))
+		def create_purchase_request(customer, breed)
+			PuppyBreeder.purchases_repo.add(PurchaseRequest.new({:breed => breed, :customer => customer}))
 		end
 
-		def review_purchase_request(pr_list, pr_id)
-			pr_list.purchase_requests[pr_id]
+		def review_purchase_request(pr_id)
+			result = PuppyBreeder.purchases_repo.view_by_id(pr_id)
+			result.values
 		end
 
 		def all_purchase_requests(pr_list)
