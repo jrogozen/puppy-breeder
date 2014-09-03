@@ -1,0 +1,5 @@
+require_relative 'puppy.rb'
+require_relative 'purchase_request.rb'
+require_relative 'breeder.rb'
+require_relative 'customer.rb'
+require_relative 'breed.rb'

@@ -46,7 +46,7 @@ module PuppyBreeder
 			purchase = pr_list.purchase_requests[pr_id]
 
 			if pp_list.match_puppy(purchase.breed)
-				# gross!!!!
+				# gross
 				if purchase.breed.wait_list.empty? || purchase.breed.wait_list.first == purchase.customer
 					pup = pp_list.match_puppy(purchase.breed)[1]
 					pup.status = "sold"
@@ -70,6 +70,12 @@ module PuppyBreeder
 		def view_pending_orders(pr_list)
 			pr_list.purchase_requests.select do |purchase_id, purchase|
 				purchase.order_status == "pending"
+			end
+		end
+
+		def view_hold_orders(pr_list)
+			pr_list.purchase_requests.select do |purchase_id, purchase|
+				purchase.order_status == "hold"
 			end
 		end
 
