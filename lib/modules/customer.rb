@@ -6,8 +6,10 @@ module PuppyBreeder
 			@name = name
 		end
 
-		def create_purchase_request(pr_list, puppy, opt={})
-			pr_list.add(PurchaseRequest.new(puppy, self, opt))
+		def create_purchase_request(breed)
+			new_pr = PurchaseRequest.new({:breed => breed, :customer => self})
+      result = PuppyBreeder.purchases_repo.add(new_pr)
+      return new_pr
 		end
 	end
 end
