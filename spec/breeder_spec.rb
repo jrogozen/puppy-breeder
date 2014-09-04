@@ -1,190 +1,195 @@
 require_relative 'spec_helper.rb'
 
 describe PuppyBreeder::Breeder do
-	let(:pitbull) {PuppyBreeder::Breed.new("Pitbull", 500)}
-	let(:golden_retriever) {PuppyBreeder::Breed.new("Golden Retriever", 100)}
-	let(:poodle) {PuppyBreeder::Breed.new("Poodle", 40)}
+	# people 
 	let(:jon) {PuppyBreeder::Breeder.new("Jon")}
-	let(:spot) {PuppyBreeder::Puppy.new({:name => "Spot", :breed => pitbull, :age => 10})}
-	let(:lucky) {PuppyBreeder::Puppy.new("Lucky", golden_retriever, "Golden", 21)}
-	let(:sniffles) {PuppyBreeder::Puppy.new("Sniffles", poodle, "Black", 30)}
-	let(:puppylist) {PuppyBreeder::PuppyList.new}
 	let(:jackson) {PuppyBreeder::Customer.new("Michael Jackson")}
-	let(:usher) {PuppyBreeder::Customer.new("Usher")}
-	let(:purchase_request) {PuppyBreeder::PurchaseRequest.new(pitbull, jackson)}
-	let(:purchase_request2) {PuppyBreeder::PurchaseRequest.new(golden_retriever, jackson)}
-	let(:purchase_request3) {PuppyBreeder::PurchaseRequest.new(poodle, jackson)}
-	let(:purchase_request4) {PuppyBreeder::PurchaseRequest.new(pitbull, usher)}
-	let(:purchase_request_list) {PuppyBreeder::PurchaseRequestList.new}
-	let(:create_one) {jon.create_purchase_request(purchase_request_list, jackson, spot, {:request_type => "letter"})}
+  let(:usher) {PuppyBreeder::Customer.new("Usher")}
 	
-	describe '#initialize' do 
-		it "initializes instance of Breeder class" do
-			expect(jon).to be_kind_of(PuppyBreeder::Breeder)
-		end
-	end
+	# dogs
+	let(:pitbull) {PuppyBreeder::Breed.new("Pitbull", 500)}
+	let(:pug) {PuppyBreeder::Breed.new("Pug", 200)}
+	let(:lucky) {PuppyBreeder::Puppy.new({:name => "Lucky", :breed => pitbull, :age => 2})}
+  let(:bud) {PuppyBreeder::Puppy.new({:name => "Bud", :breed => pitbull, :age => 2})}
+
+	# clean db
+	before(:each) {reset_tables}
+	before(:each) {create_tables}
 
 	describe '#add_puppy' do
-		it "should add puppy to PuppyList" do
-			jon.add_puppy(puppylist, spot, "available")
-			expect(puppylist.puppies[:Spot].name).to eq("Spot")
+		it 'adds puppy to the database' do
+			result = jon.add_puppy(lucky)
+			expect(result).to eq("1")
 		end
 	end
 
 	describe '#create_purchase_request' do
-		it "add new purchase request to list" do
-			jon.create_purchase_request(purchase_request_list, jackson, spot, {:request_type => "letter"})
-			# verify length
-			expect(purchase_request_list.purchase_requests.length).to eq(1)
+		it 'creates new purchase request' do
+			result = jon.create_purchase_request(jackson, pitbull)
+			expect(result.breed).to eq(pitbull)
+		end
+
+		it 'sets the purchase request id' do
+			result = jon.create_purchase_request(jackson, pitbull)
+			expect(result.id).to eq(1)
 		end
 	end
 
 	describe '#review_purchase_request' do
-		# should be able to look at purchase request by ID
-		it "look at one purchase request" do
-			purchase_request_list.add(purchase_request)
-			expect(jon.review_purchase_request(purchase_request_list, purchase_request.id).breed.name).to eq("Pitbull")
+		it 'returns the correct purchase request' do
+			pr = jon.create_purchase_request(jackson, pitbull)
+			result = jon.review_purchase_request(pr.id)
+			expect(result.breed.name).to eq("Pitbull")
 		end
 	end
 
 	describe '#all_purchase_requests' do
-		it "look at all purchase requests" do
-			purchase_request_list.add(purchase_request)
-			purchase_request_list.add(purchase_request2)
+		it 'returns an array of all purchase requests' do
 
-			# look at the second request
-			expect(jon.all_purchase_requests(purchase_request_list)[purchase_request2.id].breed.name).to eq("Golden Retriever")
+			jon.create_purchase_request(jackson, pitbull)
+			jon.create_purchase_request(jackson, pug)
+			result = jon.all_purchase_requests
+
+			# return an array of hashes
+			expect(result[1].breed.name).to eq("Pug")
 		end
 	end
 
 	describe '#update_purchase_request' do
-		it "change status of purchase request to approved" do
-			purchase_request_list.add(purchase_request)
+		it 'updates order status in database' do
+			pr = jon.create_purchase_request(jackson, pitbull)
+			result = jon.update_purchase_request(pr.id, 'denied')
 
-			# change the status to approved
-			jon.update_purchase_request(purchase_request_list, purchase_request.id, "approved")
-			expect(purchase_request.order_status).to eq("approved")
-		end
+			expect(result[:order_status]).to eq('denied')
 
-		it "change status of purchase request to denied" do
-			purchase_request_list.add(purchase_request)
-			jon.update_purchase_request(purchase_request_list, purchase_request.id, "denied")
-			expect(purchase_request.order_status).to eq("denied")
 		end
 	end
 
-	describe '#process_purchase_request' do 
-		it "completes a purchase request" do
-			puppylist.add(spot)
-			purchase_request_list.add(purchase_request)
-			jon.process_purchase_request(puppylist, purchase_request_list, purchase_request.id)
+  describe '#add_to_waitlist' do
+    it 'adds customer to waitlist database' do
+       result = jon.add_to_waitlist(jackson, pitbull)
+       expect(result[:customer]).to eq("Michael Jackson")
+    end
+  end
 
-			# process works
-			expect(spot.status).to eq("sold")
+  describe '#update_waitlist_status' do
+    it 'sets status to completed' do
+      jon.add_to_waitlist(jackson, pitbull)
+      result = jon.update_waitlist_status(jackson, pitbull, 'completed')
+      expect(result[:status]).to eq("completed")
+    end
+  end
 
-			# complete works
-			expect(purchase_request.order_status).to eq("completed")
-		end
-
-		it "puts a request on hold" do
-			puppylist.add(spot)
-
-			# set no available puppy
-			spot.status = "sold"
-			purchase_request_list.add(purchase_request)
-
-			jon.process_purchase_request(puppylist, purchase_request_list, purchase_request.id)
-			expect(purchase_request.order_status).to eq("hold")
-		end
-
-		it "put a request on hold and then accepts it next time" do
-			puppylist.add(spot)
-
-			# set no available pup
-			spot.status = "sold"
-			purchase_request_list.add(purchase_request)
-			jon.process_purchase_request(puppylist, purchase_request_list, purchase_request.id)
-			expect(purchase_request.order_status).to eq("hold")
-
-			# set available pup
-			puppylist.add(PuppyBreeder::Puppy.new("Woof", pitbull, "Black", 1))
-			jon.process_purchase_request(puppylist, purchase_request_list, purchase_request.id)
-			expect(purchase_request.order_status).to eq("completed")
-		end
-
-		it "adds customer to waitlist" do
-			puppylist.add(spot)
-
-			# set no available puppy
-			spot.status = "sold"
-			purchase_request_list.add(purchase_request)
-
-			jon.process_purchase_request(puppylist, purchase_request_list, purchase_request.id)
-			expect(pitbull.wait_list[0]).to eq(jackson)
-		end
-
-		it "doesnt accept someone who isn't first on the waitlist" do
-			puppylist.add(spot)
-
-			# set no available pup
-			spot.status = "sold"
-			purchase_request_list.add(purchase_request)
-			purchase_request_list.add(purchase_request4)
-			jon.process_purchase_request(puppylist, purchase_request_list, purchase_request.id)
-			jon.process_purchase_request(puppylist, purchase_request_list, purchase_request4.id)
-			spot.status = "available"
-			jon.process_purchase_request(puppylist, purchase_request_list, purchase_request4.id)
-			expect(purchase_request4.order_status).to eq("hold")
-		end
-
-		it "accepts someone first on the waitlist" do
-			puppylist.add(spot)
-
-			# set no available pup
-			spot.status = "sold"
-			purchase_request_list.add(purchase_request)
-			purchase_request_list.add(purchase_request4)
-			jon.process_purchase_request(puppylist, purchase_request_list, purchase_request.id)
-			jon.process_purchase_request(puppylist, purchase_request_list, purchase_request4.id)
-			spot.status = "available"
-			jon.process_purchase_request(puppylist, purchase_request_list, purchase_request.id)
-			expect(purchase_request.order_status).to eq("completed")
-		end
-
-	end
-
-	describe "#delete_purchase_request" do
-		it "successfully removes a purchase request" do
-			purchase_request_list.add(purchase_request)
-			jon.delete_purchase_request(purchase_request_list, purchase_request.id)
-			expect(purchase_request_list.purchase_requests[purchase_request.id]).to be_nil
+	describe '#complete_purchase_request' do
+		it 'updates order status to completed' do
+      pr = jon.create_purchase_request(jackson, pitbull)
+      result = jon.complete_purchase_request(pr.id)
+      
+      expect(result[:order_status]).to eq('completed')
 		end
 	end
 
-	describe '#view_completed_orders' do
-		it "should list out all completed orders only" do
-			purchase_request_list.add(purchase_request)
-			purchase_request_list.add(purchase_request2)
+  describe '#hold_purchase_request' do
+    it 'adds customer to waitlist' do
+      pr = jon.create_purchase_request(jackson, pitbull)
+      result = jon.hold_purchase_request(pr.id)
+      expect(result[:customer]).to eq("Michael Jackson")
+    end
+  end
 
-			jon.update_purchase_request(purchase_request_list, purchase_request.id, "completed")
-			expect(jon.view_completed_orders(purchase_request_list)[purchase_request.id].breed.name).to eq("Pitbull")
-		end
-	end
+  describe '#process_purchase_request' do
+    context 'successful order' do
+      it 'changes puppy status to sold' do
+        jon.add_puppy(lucky)
+        pr = jon.create_purchase_request(jackson, pitbull)
+        jon.process_purchase_request(pr.id)
 
-	describe "#view_pending_orders" do
-		it "should list out all completed orders only" do
-			purchase_request_list.add(purchase_request)
-			purchase_request_list.add(purchase_request2)
+        result = PuppyBreeder.puppies_repo.view_puppies
+        expect(result.first.status).to eq("sold")
+      end
 
-			jon.update_purchase_request(purchase_request_list, purchase_request2.id, "approved")
-			expect(jon.view_pending_orders(purchase_request_list)[purchase_request.id].breed.name).to eq("Pitbull")
-		end
-	end
+      it 'changes the purchase request to completed' do
+        jon.add_puppy(lucky)
+        pr = jon.create_purchase_request(jackson, pitbull)
+        jon.process_purchase_request(pr.id)
 
-	describe '#set_breed_price' do
-		it "should update a breed's price" do
-			jon.set_breed_price(pitbull, 10)
-			expect(pitbull.price).to eq(10)
-		end
-	end
+        result = jon.review_purchase_request(pr.id)
+        expect(result.order_status).to eq("completed")
+      end
+
+      it 'change waitlist status to complete' do
+        # set waitlist
+        jon.add_puppy(lucky)
+        pr = jon.create_purchase_request(jackson, pitbull)
+        jon.process_purchase_request(pr.id)
+        pr2 = jon.create_purchase_request(usher, pitbull)
+        jon.process_purchase_request(pr2.id)
+
+        # add new puppy
+        jon.add_puppy(bud)
+        jon.process_purchase_request(pr2.id)
+        result = PuppyBreeder.waitlist_repo.completed_waitlist(pr2.breed)
+
+        expect(result.first.status).to eq('completed')
+      end
+    end
+
+    context 'order must be put on hold' do
+      it 'adds customer to the wait list' do
+        # set waitlist
+        jon.add_puppy(lucky)
+        pr = jon.create_purchase_request(jackson, pitbull)
+        jon.process_purchase_request(pr.id)
+        pr2 = jon.create_purchase_request(usher, pitbull)
+        jon.process_purchase_request(pr2.id)
+
+        result = PuppyBreeder.waitlist_repo.show_waitlist(pr2.breed)
+        expect(result.first.customer.name).to eq('Usher')
+      end
+
+      it 'changes the purchase request to hold' do
+        jon.add_puppy(lucky)
+        pr = jon.create_purchase_request(jackson, pitbull)
+        jon.process_purchase_request(pr.id)
+        pr2 = jon.create_purchase_request(usher, pitbull)
+        jon.process_purchase_request(pr2.id)
+
+        result = jon.review_purchase_request(pr2.id)
+        expect(result.order_status).to eq('hold')
+      end
+    end
+  end
+
+  describe '#view_select_orders' do
+    it 'returns array of completed orders' do
+      pr1 = jon.create_purchase_request(jackson, pitbull)
+      pr2 = jon.create_purchase_request(jackson, pug)
+      pr3 = jon.create_purchase_request(usher, pitbull)
+      jon.complete_purchase_request(pr2.id)
+
+      result = jon.view_select_orders("completed")
+      expect(result[0].customer.name).to eq("Michael Jackson")
+
+    end
+
+    it 'returns array of pending orders' do
+      pr1 = jon.create_purchase_request(jackson, pitbull)
+      pr2 = jon.create_purchase_request(jackson, pug)
+      pr3 = jon.create_purchase_request(usher, pitbull)
+
+      result = jon.view_select_orders("pending")
+      expect(result[2].customer.name).to eq("Usher")
+    end
+
+    it 'returns array of hold(ed) orders' do
+      pr1 = jon.create_purchase_request(jackson, pitbull)
+      pr2 = jon.create_purchase_request(jackson, pug)
+      pr3 = jon.create_purchase_request(usher, pitbull)
+
+      jon.hold_purchase_request(pr2.id)
+
+      result = jon.view_select_orders("hold")
+      expect(result[0].customer.name).to eq("Michael Jackson")
+    end
+  end
 end

@@ -2,13 +2,14 @@
 module PuppyBreeder
   class Puppy
   	attr_accessor :status
-  	attr_reader :name, :breed, :age, :price
+  	attr_reader :name, :breed, :age, :price, :id
 
   	def initialize(opt={})
   		@name = opt[:name]
   		@breed = opt[:breed]
   		@age = opt[:age]
-  		@status = "available"
+  		@status = opt[:status] || 'available'
+      @id = opt[:id]
   	end
   end
 end

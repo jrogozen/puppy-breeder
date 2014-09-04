@@ -2,3 +2,11 @@
 require 'rspec'
 require 'pry-byebug'
 require_relative '../app.rb'
+
+def reset_tables
+	PuppyBreeder::Repos::drop_tables
+end
+
+def create_tables
+	PuppyBreeder::Repos::create_tables
+end

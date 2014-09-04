@@ -12,72 +12,75 @@ module PuppyBreeder
 
 		# look into making two methods. one to create purchase request and one to add it to a list
 		def create_purchase_request(customer, breed)
-			PuppyBreeder.purchases_repo.add(PurchaseRequest.new({:breed => breed, :customer => customer}))
+			new_pr = PurchaseRequest.new({:breed => breed, :customer => customer})
+			result = PuppyBreeder.purchases_repo.add(new_pr)
+			return new_pr
 		end
 
 		def review_purchase_request(pr_id)
-			result = PuppyBreeder.purchases_repo.view_by_id(pr_id)
-			result.values
+			PuppyBreeder.purchases_repo.view_by_id(pr_id)
+			
 		end
 
-		def all_purchase_requests(pr_list)
-			pr_list.purchase_requests
+		def all_purchase_requests
+			PuppyBreeder.purchases_repo.view_all
 		end
 
-		def update_purchase_request(pr_list, pr_id, order_status)
-			purchase = pr_list.purchase_requests[pr_id]
-			purchase.order_status = order_status
+		def update_purchase_request(pr_id, order_status)
+			PuppyBreeder.purchases_repo.update(pr_id, order_status)
 		end
 
-		def complete_purchase_request(purchase)
-			purchase.order_status = "completed"
-			purchase.breed.remove_from_waitlist(purchase.customer)
-			return purchase
+		def add_to_waitlist(customer, breed)
+			PuppyBreeder.waitlist_repo.add(customer, breed)
 		end
 
-		def hold_purchase_request(purchase)
-			purchase.order_status = "hold"
-			purchase.breed.add_to_waitlist(purchase.customer)
-			return purchase
+		def update_waitlist_status(customer, breed, status)
+			PuppyBreeder.waitlist_repo.update(customer, breed, status)
 		end
 
-		def process_purchase_request(pp_list, pr_list, pr_id)
-			# this returns a puppy if we have one available
-			# pup is an array with [0] = name, [1] = puppy object
-			purchase = pr_list.purchase_requests[pr_id]
+		def complete_purchase_request(pr_id)
+			update_purchase_request(pr_id, 'completed')
+		end
 
-			if pp_list.match_puppy(purchase.breed)
-				# gross
-				if purchase.breed.wait_list.empty? || purchase.breed.wait_list.first == purchase.customer
-					pup = pp_list.match_puppy(purchase.breed)[1]
-					pup.status = "sold"
-					complete_purchase_request(purchase)
+		def hold_purchase_request(pr_id)
+			# get dat purchase request object
+			pr = review_purchase_request(pr_id)
+
+			update_purchase_request(pr.id, 'hold')
+			add_to_waitlist(pr.customer, pr.breed)
+		end
+
+		# gross
+		def process_purchase_request(pr_id)
+			pr = review_purchase_request(pr_id)
+			puppy = PuppyBreeder.puppies_repo.match_puppy(pr.breed)
+			waitlist = PuppyBreeder.waitlist_repo.has_waitlist?(pr.breed)
+			if !puppy.nil?
+				#check waitlist repo to see if waitlist is empty or first entry matches
+				if (!waitlist) || PuppyBreeder.waitlist_repo.show_waitlist(pr.breed)[0].customer.name == pr.customer.name
+					if waitlist
+						# update waitlist status
+						PuppyBreeder.waitlist_repo.update(pr.customer, pr.breed, 'completed')
+					end
+					# change puppy status
+					PuppyBreeder.puppies_repo.update(puppy, 'sold')
+					# complete order request
+					complete_purchase_request(pr.id)
 				end
 			else
-				hold_purchase_request(purchase)
+				# add person to waitlist
+				PuppyBreeder.waitlist_repo.add(pr.customer, pr.breed)
+				# change purchase order to hold
+				hold_purchase_request(pr.id)
 			end
 		end
 
-		def delete_purchase_request(pr_list, pr_id)
-			pr_list.purchase_requests.delete(pr_id)
+		def delete_purchase_request(pr_id)
+			update_purchase_request(pr_id, 'completed')
 		end
 
-		def view_completed_orders(pr_list)
-			pr_list.purchase_requests.select do |purchase_id, purchase|
-				purchase.order_status == "completed"
-			end
-		end
-
-		def view_pending_orders(pr_list)
-			pr_list.purchase_requests.select do |purchase_id, purchase|
-				purchase.order_status == "pending"
-			end
-		end
-
-		def view_hold_orders(pr_list)
-			pr_list.purchase_requests.select do |purchase_id, purchase|
-				purchase.order_status == "hold"
-			end
+		def view_select_orders(query)
+			PuppyBreeder.purchases_repo.view_by_query(query)
 		end
 
 		def set_breed_price(breed, price)

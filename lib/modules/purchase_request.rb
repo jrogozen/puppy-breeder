@@ -7,10 +7,10 @@ module PuppyBreeder
   	def initialize(opt = {})
       @breed = opt[:breed]
       @customer = opt[:customer]
-  		@order_status = "pending"
+  		@order_status = opt[:order_status] || "pending"
 
-      # id is set by PurchaseRequestList class
-      @id = nil
+      # id is set by Purchases Repo
+      @id = opt[:id]
   	end
 
   end
