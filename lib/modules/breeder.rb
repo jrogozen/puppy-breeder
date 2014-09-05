@@ -19,7 +19,6 @@ module PuppyBreeder
 
 		def review_purchase_request(pr_id)
 			PuppyBreeder.purchases_repo.view_by_id(pr_id)
-			
 		end
 
 		def all_purchase_requests

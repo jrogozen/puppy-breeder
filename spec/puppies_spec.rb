@@ -7,17 +7,27 @@ describe PuppyBreeder::Repos::Puppies do
   let(:usher) {PuppyBreeder::Customer.new("Usher")}
   
   # dogs
-  let(:pitbull) {PuppyBreeder::Breed.new("Pitbull", 500)}
-  let(:pug) {PuppyBreeder::Breed.new("Pug", 200)}
-  let(:lucky) {PuppyBreeder::Puppy.new({:name => "Lucky", :breed => pitbull, :age => 2})}
+  let(:pitbull) {PuppyBreeder::Breed.new({:name => "Pitbull", :price => 500})}
+  let(:pug) {PuppyBreeder::Breed.new({:name => "Pug", :price => 200})}
+  let(:lucky) do 
+    PuppyBreeder.breeds_repo.add("Pitbull", 500)
+    PuppyBreeder::Puppy.new({:name => "Lucky", :breed => pitbull, :age => 2})
+  end
   let(:bud) {PuppyBreeder::Puppy.new({:name => "Bud", :breed => pitbull, :age => 5})}
 
   # clean db
   before(:each) {reset_tables}
   before(:each) {create_tables}
 
+  describe '#add' do
+    it 'adds puppy' do
+      result = PuppyBreeder.puppies_repo.add(lucky)
+      expect(result).to eq(1)
+    end
+  end
+
   describe '#select_puppy' do
-    it 'returns empty array for no matches' do
+    it 'returns nil for no matches' do
       result = PuppyBreeder.puppies_repo.select_puppy(pitbull)
       expect(result).to be_an(Array)
       expect(result.length).to eq(0)

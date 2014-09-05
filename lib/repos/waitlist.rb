@@ -17,7 +17,7 @@ module PuppyBreeder
 			end
 
 			def build_entity(row)
-				PuppyBreeder::Waitlist.new({:breed => Breed.new(row[:breed]), :customer => Customer.new(row[:customer]), :status => row[:status]})
+				PuppyBreeder::Waitlist.new({:breed => Breed.new({:breed => row[:breed]}), :customer => Customer.new(row[:customer]), :status => row[:status]})
 			end
 
 			def add(customer, breed)

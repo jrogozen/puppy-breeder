@@ -27,7 +27,7 @@ module PuppyBreeder
 			end
 
 			def build_entity(row)
-				PurchaseRequest.new(:id => row[:id].to_i, :customer => Customer.new(row[:customer]), :breed => Breed.new(row[:breed]), :order_status => row[:order_status])
+				PurchaseRequest.new(:id => row[:id].to_i, :customer => Customer.new(row[:customer]), :breed => Breed.new({:name => row[:breed]}), :order_status => row[:order_status])
 			end
 
 			def update(pr_id, order_status)
@@ -44,9 +44,13 @@ module PuppyBreeder
 				query = <<-SQL
 					SELECT * FROM purchases where id = '#{id}'
 				SQL
-				result = clean_hash(@db_adapter.exec(query).first)
-				
-				build_entity(result)
+				result = @db_adapter.exec(query).entries
+			
+				if !result.nil? && result.length > 0
+					build_entity(clean_hash(result.first))
+				else
+					result
+				end
 			end
 
 			def view_by_query(order_status)
@@ -55,7 +59,7 @@ module PuppyBreeder
 				SQL
 				result = @db_adapter.exec(query).entries
 
-				result.entries.map do |row|
+				result.map do |row|
 					data = clean_hash(row)
 					build_entity(data)
 				end
@@ -67,7 +71,7 @@ module PuppyBreeder
 				SQL
 				result = @db_adapter.exec(query).entries
 
-				result.entries.map do |row|
+				result.map do |row|
 					data = clean_hash(row)
 					build_entity(data)
 				end

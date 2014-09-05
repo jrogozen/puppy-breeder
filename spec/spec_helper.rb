@@ -3,6 +3,13 @@ require 'rspec'
 require 'pry-byebug'
 require_relative '../app.rb'
 
+RSpec.configure do |config|
+  
+  config.before(:each) {reset_tables}
+  config.before(:each) {create_tables}
+
+end
+
 def reset_tables
 	PuppyBreeder::Repos::drop_tables
 end
@@ -10,3 +17,4 @@ end
 def create_tables
 	PuppyBreeder::Repos::create_tables
 end
+

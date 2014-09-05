@@ -1,6 +1,7 @@
 require_relative 'puppies.rb'
 require_relative 'purchases.rb'
 require_relative 'waitlist.rb'
+require_relative 'breeds.rb'
 
 module PuppyBreeder
 
@@ -28,18 +29,29 @@ module PuppyBreeder
 			@@waitlist_repo
 		end
 
+		def self.breeds_repo=(x)
+			@@breeds_repo = x
+		end
+
+		def self.breeds_repo
+			@@breeds_repo
+		end
+
 	module Repos
 		def self.create_tables
+			PuppyBreeder.breeds_repo.create_table
 			PuppyBreeder.puppies_repo.create_table
 			PuppyBreeder.purchases_repo.create_table
 			PuppyBreeder.waitlist_repo.create_table
+			
 		end
 
 		def self.drop_tables
 			query = <<-SQL
 				DROP TABLE IF EXISTS puppies CASCADE;
 				DROP TABLE IF EXISTS purchases CASCADE;
-				DROP TABLE IF EXISTS waitlist CASCADE
+				DROP TABLE IF EXISTS waitlist CASCADE;
+				DROP TABLE IF EXISTS breeds CASCADE;
 			SQL
 			db_adapter = PG.connect(host: 'localhost', dbname: 'puppy-breeder')
 			db_adapter.exec(query)

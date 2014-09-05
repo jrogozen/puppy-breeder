@@ -7,9 +7,12 @@ describe PuppyBreeder::Breeder do
   let(:usher) {PuppyBreeder::Customer.new("Usher")}
 	
 	# dogs
-	let(:pitbull) {PuppyBreeder::Breed.new("Pitbull", 500)}
-	let(:pug) {PuppyBreeder::Breed.new("Pug", 200)}
-	let(:lucky) {PuppyBreeder::Puppy.new({:name => "Lucky", :breed => pitbull, :age => 2})}
+	let(:pitbull) {PuppyBreeder::Breed.new({:name => "Pitbull", :price => 500})}
+	let(:pug) {PuppyBreeder::Breed.new(:name => "Pug", :price => 300)}
+	let(:lucky) do 
+    PuppyBreeder.breeds_repo.add("Pitbull", 500)
+    PuppyBreeder::Puppy.new({:name => "Lucky", :breed => pitbull, :age => 2})
+  end
   let(:bud) {PuppyBreeder::Puppy.new({:name => "Bud", :breed => pitbull, :age => 2})}
 
 	# clean db
@@ -19,7 +22,7 @@ describe PuppyBreeder::Breeder do
 	describe '#add_puppy' do
 		it 'adds puppy to the database' do
 			result = jon.add_puppy(lucky)
-			expect(result).to eq("1")
+			expect(result).to eq(1)
 		end
 	end
 

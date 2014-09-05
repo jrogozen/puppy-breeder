@@ -1,10 +1,11 @@
 module PuppyBreeder
 	class Breed
-		attr_accessor :price, :wait_list
+		attr_accessor :price
 		attr_reader :name
 		
-		def initialize(name, price = nil)
-			@name, @price = name, price
+		def initialize(opt={})
+			@name = opt[:name]
+      @price = opt[:price]
 		end
 		
 	end
